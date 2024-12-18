@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { callApi } from "../api/axios";
 
 interface Product {
 	category: string;
@@ -14,9 +15,8 @@ export const Sidebar = () => {
 	useEffect(() => {
 		const fetchCategory = async () => {
 			try {
-				const response = await fetch("https://dummyjson.com/products");
-				const data: FetchResponse = await response.json();
-				const uniqueCategories = Array.from(new Set(data.products.map((product) => product.category)));
+				const response = await callApi<FetchResponse>("https://dummyjson.com/products", "GET");
+				const uniqueCategories = Array.from(new Set(response.products.map((product) => product.category)));
 				setCategories(uniqueCategories);
 			} catch (error) {
 				console.error("Error fetching product", error);

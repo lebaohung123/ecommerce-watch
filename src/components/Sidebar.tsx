@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { callApi } from "../api/axios";
+import { useFilterContext } from "../context/FilterContext";
 
 interface Product {
 	category: string;
@@ -12,6 +13,14 @@ interface FetchResponse {
 export const Sidebar = () => {
 	const [categories, setCategories] = useState<string[]>([]);
 	const [keywords] = useState<string[]>(["apple", "watch", "fashsion", "trend", "shoes", "shirt"]);
+	const {queryString, setQueryString, selectedCategory, setSelectedCategory, minPrice, setMinPrice, maxPrice, setMaxPrice, keyWord, setKeyWord} = useFilterContext();
+	const handleResetFilter = () => {
+		setQueryString('');
+		setSelectedCategory('');
+		setMinPrice(undefined);
+		setMaxPrice(undefined);
+		setKeyWord('');
+	}
 	useEffect(() => {
 		const fetchCategory = async () => {
 			try {
@@ -30,11 +39,11 @@ export const Sidebar = () => {
 			<h1 className="mt-4 mb-10 text-2xl font-bold">React Store</h1>
 
 			<section>
-				<input type="text" name="" id="" className="p-2 px-2 border-2 rounded sm:mb-0 " placeholder="Search Product" />
+				<input type="text" name="" id="" className="p-2 px-2 border-2 rounded sm:mb-0 " placeholder="Search Product" value={queryString} onChange={e => setQueryString(e.target.value)}/>
 
 				<div className="flex items-center justify-center">
-					<input type="text" name="" id="" className="w-full px-5 py-3 mr-2 border-2" placeholder="Min" />
-					<input type="text" name="" id="" className="w-full px-5 py-3 mr-2 border-2" placeholder="Max" />
+					<input type="text" name="" id="" className="w-full px-5 py-3 mr-2 border-2" placeholder="Min" value={minPrice} onChange={e => setMinPrice(Number(e.target.value))}/>
+					<input type="text" name="" id="" className="w-full px-5 py-3 mr-2 border-2" placeholder="Max" value={maxPrice} onChange={e => setMaxPrice(Number(e.target.value))}/>
 				</div>
 
 				{/* Category section */}
@@ -45,7 +54,7 @@ export const Sidebar = () => {
 				<section>
 					{categories.map((category, index) => (
 						<label key={index} className="block mb-2">
-							<input type="radio" name="category" value={category} className="mr-2 w-[16px] h-[16px]" />
+							<input type="radio" name="category" value={category} checked={selectedCategory === category} onChange={() => setSelectedCategory(category)} className="mr-2 w-[16px] h-[16px]" />
 							{category.toUpperCase()}
 						</label>
 					))}
@@ -56,14 +65,14 @@ export const Sidebar = () => {
 					<h2 className="mb-3 text-xl font-semibold">Keywords</h2>
 					<div>
 						{keywords.map((keyword, index) => (
-							<button key={index} className="block w-full px-4 py-2 mb-2 text-left border rounded hover:bg-gray-200">
+							<button key={index} className={`block w-full px-4 py-2 mb-2 text-left border rounded hover:bg-gray-200 ${keyWord === keyword ? 'bg-black text-white' : ''}`} >
 								{keyword.toUpperCase()}
 							</button>
 						))}
 					</div>
 				</div>
 
-				<button className="w-full mb-[4rem] py-2 bg-black text-white rounded mt-5">Reset Filters</button>
+				<button className="w-full mb-[4rem] py-2 bg-black text-white rounded mt-5" onClick={handleResetFilter}>Reset Filters</button>
 			</section>
 		</div>
 	);

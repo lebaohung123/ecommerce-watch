@@ -65,7 +65,7 @@ export const Sidebar = () => {
 					<h2 className="mb-3 text-xl font-semibold">Keywords</h2>
 					<div>
 						{keywords.map((keyword, index) => (
-							<button key={index} className={`block w-full px-4 py-2 mb-2 text-left border rounded hover:bg-gray-200 ${keyWord === keyword ? 'bg-black text-white' : ''}`} >
+							<button key={index} className={`block w-full px-4 py-2 mb-2 text-left border rounded hover:bg-gray-200 ${keyWord === keyword ? 'bg-black text-white' : ''}`} onClick={() => setKeyWord(keyword)}>
 								{keyword.toUpperCase()}
 							</button>
 						))}

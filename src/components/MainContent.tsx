@@ -1,7 +1,15 @@
-import { useEffect, useState } from "react";
-import { useFilterContext } from "../context/FilterContext";
 import { Tally2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { callApi } from "../api/axios";
+import { useFilterContext } from "../context/FilterContext";
+import BookCard from "./BookCard";
+
+interface ResponseType {
+	products: any[];
+	total: number;
+	skip: number;
+	limit: number;
+}
 
 const MainContent = () => {
 	const { queryString, selectedCategory, minPrice, maxPrice, keyWord } = useFilterContext();
@@ -10,28 +18,86 @@ const MainContent = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [dropdownOpen, setDropdownOpen] = useState(false);
 	const itemsPerPage = 12;
+	const [totalItems, setTotalItems] = useState<number | undefined>(undefined);
+	const totalPages = totalItems ? Math.ceil(totalItems / itemsPerPage) : 0;
 
 	useEffect(() => {
 		const fetchData = async () => {
-			let url = `https://dummyjson.com/products?limit=${itemsPerPage}&skip${(currentPage - 1) * itemsPerPage}`;
+			let url = `https://dummyjson.com/products?limit=${itemsPerPage}&skip=${(currentPage - 1) * itemsPerPage}`;
 			if (keyWord) {
 				url = `https://dummyjson.com/products/search?q=${keyWord}`;
 			}
-			const response = await callApi<any[]>(url, "GET");
-			setProducts(response);
+			const response = await callApi<ResponseType>(url, "GET");
+			setTotalItems(response.total);
+			setProducts(response.products);
 		};
 		fetchData();
 	}, [currentPage, keyWord]);
-
 	const getFilteredProducts = () => {
 		let filteredProducts = products;
-		if (selectedCategory) {
-			filteredProducts.filter((product) => product.category === selectedCategory);
+		if (queryString) {
+			filteredProducts = filteredProducts.filter((product) => product.title.toLowerCase().includes(queryString.toLowerCase()));
 		}
-		console.log(filteredProducts);
+		if (selectedCategory) {
+			filteredProducts = filteredProducts.filter((product) => product.category === selectedCategory);
+		}
+		if (minPrice !== undefined) {
+			filteredProducts = filteredProducts.filter((product) => product.price >= minPrice);
+		}
+		if (maxPrice !== undefined) {
+			filteredProducts = filteredProducts.filter((product) => product.price <= maxPrice);
+		}
+		switch (filter) {
+			case "expensive":
+				return filteredProducts.sort((a, b) => b.price - a.price);
+			case "cheap":
+				return filteredProducts.sort((a, b) => a.price - b.price);
+			case "popular":
+				return filteredProducts.sort((a, b) => b.rating - a.rating);
+			default:
+				return filteredProducts;
+		}
 	};
 
-	getFilteredProducts();
+	const handlePageChange = (pos: string): void => {
+		let checkCurrentPage;
+		switch (pos) {
+			case "pre":
+				checkCurrentPage = currentPage - 1;
+				break;
+			case "next":
+				checkCurrentPage = currentPage + 1;
+				break;
+			default:
+				return;
+		}
+		if (checkCurrentPage <= 0 || checkCurrentPage > totalPages) {
+			return;
+		}
+		setCurrentPage(checkCurrentPage);
+	};
+
+	const filteredProducts = getFilteredProducts();
+	console.log(filteredProducts);
+
+	const getPaginationButtons = (): number[] => {
+		const buttons: number[] = [];
+		let startPage = Math.max(1, currentPage - 2);
+		let endPage = Math.min(totalPages, currentPage + 2);
+
+		if (currentPage - 2 < 1) {
+			endPage = Math.min(totalPages, endPage + (2 - currentPage - 1));
+		}
+
+		if (currentPage + 2 > totalPages) {
+			startPage = Math.min(1, startPage + (2 - totalPages - currentPage));
+		}
+
+		for (let page = startPage; page <= endPage; page++) {
+			buttons.push(page);
+		}
+		return buttons;
+	};
 
 	return (
 		<section className="xl:w-[55rem] lg:w-[55rem] sm:w-[40rem] xs:w-[20rem] p-5">
@@ -56,11 +122,31 @@ const MainContent = () => {
 									</button>
 								</div>
 							)}
-
-							<div className="grid grid-cols-4 sm:grid-cols-3 md:grid-cols-4 gap-5">{/* Bookcard */}</div>
 						</button>
 					</div>
 				</div>
+			</div>
+			{/* Bookcard */}
+			<div className="grid grid-cols-4 sm:grid-cols-3 md:grid-cols-4 gap-5">
+				{filteredProducts.map((product) => (
+					<BookCard key={product.id} id={product.id} title={product.title} image={product.thumbnail} price={product.price} />
+				))}
+			</div>
+			{/* Pagination */}
+			<div className="flex flex-col sm:flex-row justify-between items-center mt-5">
+				<button
+					className={`border px-4 py-2 mx-2 rounded-full ${currentPage === 1 && "bg-gray-500"}`}
+					onClick={() => handlePageChange("pre")}
+				>
+					Previous
+				</button>
+				<div className="flex flex-wrap justify-center"></div>
+				<button
+					className={`border px-4 py-2 mx-2 rounded-full ${currentPage === totalPages && "bg-gray-500"}`}
+					onClick={() => handlePageChange("next")}
+				>
+					Next
+				</button>
 			</div>
 		</section>
 	);

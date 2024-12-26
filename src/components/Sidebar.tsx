@@ -39,9 +39,9 @@ export const Sidebar = () => {
 			<h1 className="mt-4 mb-10 text-2xl font-bold">React Store</h1>
 
 			<section>
-				<input type="text" name="" id="" className="p-2 px-2 border-2 rounded sm:mb-0 " placeholder="Search Product" value={queryString} onChange={e => setQueryString(e.target.value)}/>
+				<input type="text" name="" id="" className="p-2 px-1 border-2 rounded sm:mb-0 mr-2" placeholder="Search Product" value={queryString} onChange={e => setQueryString(e.target.value)}/>
 
-				<div className="flex items-center justify-center">
+				<div className="flex items-center justify-between mt-2">
 					<input type="text" name="" id="" className="w-full px-5 py-3 mr-2 border-2" placeholder="Min" value={minPrice} onChange={e => setMinPrice(Number(e.target.value))}/>
 					<input type="text" name="" id="" className="w-full px-5 py-3 mr-2 border-2" placeholder="Max" value={maxPrice} onChange={e => setMaxPrice(Number(e.target.value))}/>
 				</div>

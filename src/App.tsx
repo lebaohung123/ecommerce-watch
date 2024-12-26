@@ -1,16 +1,24 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Sidebar } from "./components/Sidebar";
 import MainContent from "./components/MainContent";
+import ProductPage from "./components/ProductPage";
+import TopSeller from "./components/TopSeller";
+import Popular from "./components/Popular";
 
 function App() {
 	return (
 		<Router>
 			<div className="flex h-screen">
 				<Sidebar />
-				<div className="flex flex-wrap justify-between w-full rounded">
+				<div className="flex flex-wrap justify-center w-full rounded">
 					<Routes>
 						<Route path="/" element={<MainContent />} />
+						<Route path="/product/:id" element={<ProductPage/>}/>
 					</Routes>
+				</div>
+				<div className="">
+					<TopSeller/>
+					<Popular/>
 				</div>
 			</div>
 		</Router>

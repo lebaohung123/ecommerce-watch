@@ -78,7 +78,6 @@ const MainContent = () => {
 	};
 
 	const filteredProducts = getFilteredProducts();
-	console.log(filteredProducts);
 
 	const getPaginationButtons = (): number[] => {
 		const buttons: number[] = [];
@@ -90,7 +89,7 @@ const MainContent = () => {
 		}
 
 		if (currentPage + 2 > totalPages) {
-			startPage = Math.min(1, startPage + (2 - totalPages - currentPage));
+			startPage = Math.max(1, startPage - (currentPage + 2 - totalPages));
 		}
 
 		for (let page = startPage; page <= endPage; page++) {
@@ -100,11 +99,11 @@ const MainContent = () => {
 	};
 
 	return (
-		<section className="xl:w-[55rem] lg:w-[55rem] sm:w-[40rem] xs:w-[20rem] p-5">
+		<section className="xl:w-[55rem] lg:w-[55rem] sm:w-[40rem] xs:w-[20rem] p-5 mr-[10rem]">
 			<div className="mb-5">
 				<div className="flex flex-col items-center justify-between sm:flex-row">
 					<div className="relative mt-5 mb-5">
-						<button className="flex items-center px-4 py-2 border rounded-full">
+						<button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex items-center px-4 py-2 border rounded-full">
 							<Tally2 className="mr-2"></Tally2>
 
 							{filter === "all" ? "Filter" : filter.charAt(0).toLowerCase() + filter.slice(1)}
@@ -140,7 +139,17 @@ const MainContent = () => {
 				>
 					Previous
 				</button>
-				<div className="flex flex-wrap justify-center"></div>
+				<div className="flex flex-wrap justify-center">
+					{getPaginationButtons().map((page) => (
+						<button
+							key={page}
+							onClick={() => setCurrentPage(page)}
+							className={`border px-4 py-2 mx-1 rounded-full ${page === currentPage ? "bg-black text-white" : ""}`}
+						>
+							{page}
+						</button>
+					))}
+				</div>
 				<button
 					className={`border px-4 py-2 mx-2 rounded-full ${currentPage === totalPages && "bg-gray-500"}`}
 					onClick={() => handlePageChange("next")}
